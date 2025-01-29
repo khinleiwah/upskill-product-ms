@@ -13,6 +13,7 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
+//	@Column(name="NAME", length=65555)
 	private String name;
 	private int discount;
 	private int price;

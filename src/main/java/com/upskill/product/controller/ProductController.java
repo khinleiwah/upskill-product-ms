@@ -62,11 +62,11 @@ public class ProductController {
 	}
 	
 	@GetMapping("/product")
-	public List<ProductWrapper> retrieveProductsByCategoryId(@RequestParam(required = false, name="category")  Integer id, @RequestParam("searchValue") String search) {
+	public List<ProductWrapper> retrieveProductsByCategoryId(@RequestParam(name="category", defaultValue = "0")  Integer id, @RequestParam("searchValue") String search) {
 		
 		List<ProductWrapper> productList = new ArrayList<>();
 		
-		if(id == null) {
+		if(Integer.valueOf(id) == 0) {
 			List<Product> products = repo.findByNameContains(search);
 
 			for (Product p: products) {
