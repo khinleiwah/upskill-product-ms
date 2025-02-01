@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -33,12 +35,12 @@ public class ProductController {
 	private ProductService service;
 	
 	@GetMapping("/products")
-	public List<Product> retrieveAllProducts() {
-        return repo.findAll();
+	public ResponseEntity<List<Product>> retrieveAllProducts() {
+        return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/product/details/{id}")
-	public ProductWrapper retrieveProductDetailById(@PathVariable int id) {
+	public ResponseEntity<ProductWrapper> retrieveProductDetailById(@PathVariable int id) {
 
 		List<Product> products = repo.findAllById(id);
 
@@ -54,7 +56,7 @@ public class ProductController {
 			wrapper.setStock(p.getStock());
 			wrapper.setCategory(cat);
 			wrapper.setImage(p.getImage());
-			return wrapper;
+			return new ResponseEntity<>(wrapper, HttpStatus.OK);
 			
 		}
 
@@ -62,7 +64,7 @@ public class ProductController {
 	}
 	
 	@GetMapping("/product")
-	public List<ProductWrapper> retrieveProductsByCategoryId(@RequestParam(name="category", defaultValue = "0")  Integer id, @RequestParam("searchValue") String search) {
+	public ResponseEntity<List<ProductWrapper>> retrieveProductsByCategoryId(@RequestParam(name="category", defaultValue = "0")  Integer id, @RequestParam(name="searchValue", defaultValue="") String search) {
 		
 		List<ProductWrapper> productList = new ArrayList<>();
 		
@@ -70,7 +72,7 @@ public class ProductController {
 			List<Product> products = repo.findByNameContains(search);
 
 			for (Product p: products) {
-				String cat = proxy.getCategoryById(p.getId());
+				String cat = proxy.getCategoryById(p.getCategoryId());
 				
 	        	ProductWrapper wrapper = new ProductWrapper();
 	            wrapper.setId(p.getId());
@@ -101,14 +103,15 @@ public class ProductController {
 	            productList.add(wrapper);
 	        }
 		}
-        return productList;
+        
+        return new ResponseEntity<>(productList, HttpStatus.OK);
 	}
 	
 	@PostMapping("/product/add")
-	public Product addProduct(@RequestBody Product theProduct) {
+	public ResponseEntity<Product> addProduct(@RequestBody Product theProduct) {
 		service.save(theProduct);
 		
-		return service.getProductById(theProduct.getId());
+		return new ResponseEntity<>(service.getProductById(theProduct.getId()), HttpStatus.CREATED);
 		
 	}
 }
